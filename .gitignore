@@ -1,0 +1,33 @@
+# Virtual environment
+.venv
+
+# Logs
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# dbt - compiled artifacts (don't commit these)
+nba_dbt/target/
+nba_dbt/dbt_packages/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
