@@ -1,21 +1,20 @@
-{{ config(materialized='incremental', unique_key='PLAYER_ID') }}
+{{ config(materialized='incremental', unique_key=['player_id', 'season']) }}
 
 SELECT
-    "PLAYER_ID",
-    "LANE_AGILITY_TIME",
-    "MAX_VERTICAL_LEAP",
-    "STANDING_VERTICAL_LEAP",
-    "THREE_QUARTER_SPRINT",
-    "STANDING_REACH_FT_IN",
-    "WINGSPAN_FT_IN",
-    "WEIGHT",
-    "POSITION",
-    "FIRST_NAME",
-    "LAST_NAME",
-    "SEASON",
-    "HEIGHT_WO_SHOES_FT_IN",
-    "HAND_WIDTH",
-    "HAND_LENGTH"
+    "PLAYER_ID" as player_id,
+    "LANE_AGILITY_TIME" as lane_agility_time,
+    "MAX_VERTICAL_LEAP" as max_vertical_leap,
+    "STANDING_VERTICAL_LEAP" as standing_vertical_leap,
+    "THREE_QUARTER_SPRINT" as three_quarter_sprint,
+    "STANDING_REACH_FT_IN" as standing_reach_ft_in,
+    "WINGSPAN_FT_IN" as wingspan_ft_in,
+    "WEIGHT" as weight,
+    "POSITION" as position,
+    "PLAYER_NAME" as player_name,
+    "SEASON" as season,
+    "HEIGHT_WO_SHOES_FT_IN" as height_wo_shoes_ft_in,
+    "HAND_WIDTH" as hand_width,
+    "HAND_LENGTH" as hand_length
 FROM {{ source('raw', 'players') }}
 WHERE "PLAYER_ID" != -1
   AND "LANE_AGILITY_TIME" IS NOT NULL
@@ -32,6 +31,3 @@ WHERE "PLAYER_ID" != -1
   AND "HEIGHT_WO_SHOES_FT_IN" IS NOT NULL
   AND "HAND_WIDTH" IS NOT NULL
   AND "HAND_LENGTH" IS NOT NULL
-{% if is_incremental() %}
-  AND "PLAYER_ID" > (SELECT MAX("PLAYER_ID") FROM {{ this }})
-{% endif %}

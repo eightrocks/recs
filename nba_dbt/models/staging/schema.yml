@@ -6,3 +6,19 @@ sources:
     schema: raw
     tables:
       - name: players
+
+models:
+  - name: stg_players
+    columns:
+      - name: player_id
+        tests:
+          - not_null
+
+  - name: int_players
+    columns:
+      - name: player_id
+        tests:
+          - not_null
+      - name: season
+        tests:
+          - not_null
