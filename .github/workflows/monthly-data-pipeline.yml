@@ -1,0 +1,68 @@
+name: Monthly NBA Data Pipeline
+
+on:
+  schedule:
+    # Run on the 1st of each month at midnight UTC
+    - cron: '0 0 1 * *'
+  # Allow manual trigger from Actions tab
+  workflow_dispatch:
+
+jobs:
+  data-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install nba-api pandas sqlalchemy python-dotenv dbt-core dbt-postgres
+      
+      - name: Fetch and load NBA data
+        env:
+          PG_USER: ${{ secrets.PG_USER }}
+          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+          PG_HOST: ${{ secrets.PG_HOST }}
+          PG_PORT: ${{ secrets.PG_PORT }}
+          PG_DATABASE: ${{ secrets.PG_DATABASE }}
+        run: python ingestion/raw.py
+      
+      - name: Run dbt models
+        env:
+          PUSER: ${{ secrets.PUSER }}
+          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+          PHOST: ${{ secrets.PHOST }}
+          PG_PORT: ${{ secrets.PG_PORT }}
+          PG_DATABASE: ${{ secrets.PG_DATABASE }}
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << EOF
+          nba_dbt:
+            target: dev
+            outputs:
+              dev:
+                type: postgres
+                host: ${{ env.PHOST }}
+                port: ${{ env.PG_PORT }}
+                user: ${{ env.PUSER }}
+                password: ${{ env.PG_PASSWORD }}
+                dbname: ${{ env.PG_DATABASE }}
+                schema: public
+                threads: 4
+          EOF
+          cd nba_dbt
+          dbt run
+          dbt test
+      
+      - name: Upload dbt artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-artifacts
+          path: nba_dbt/target/
