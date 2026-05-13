@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
+  ingestion:
+    build: ./ingestion
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    command: python raw.py
+    restart: "no"
+
+  nba_dbt:
+    build: ./nba_dbt
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    volumes:
+      - ./nba_dbt/target:/app/target
+      - ./nba_dbt/logs:/app/logs
+    command: dbt run
+    restart: "no"
+
+volumes:
+  postgres_data:
