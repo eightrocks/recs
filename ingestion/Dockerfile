@@ -4,9 +4,6 @@ FROM python:3.9-slim
 # Set working directory
 WORKDIR /app
 
-# Copy .env from parent directory
-COPY ../.env .
-
 # Copy requirements.txt and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

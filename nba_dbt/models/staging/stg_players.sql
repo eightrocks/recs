@@ -1,4 +1,4 @@
-{{ config(materialized='incremental', unique_key=['player_id', 'season']) }}
+{{ config(materialized='table', unique_key=['player_id', 'season']) }}
 
 SELECT
     "PLAYER_ID" as player_id,

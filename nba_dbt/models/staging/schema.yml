@@ -14,7 +14,7 @@ models:
         tests:
           - not_null
 
-  - name: int_players
+  - name: float_players
     columns:
       - name: player_id
         tests:

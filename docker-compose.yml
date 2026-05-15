@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   frontend:
@@ -7,15 +7,15 @@ services:
       - "3000:3000"
     env_file:
       - .env
-    depends_on:
-      - postgres
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
 
   ingestion:
     build: ./ingestion
     env_file:
       - .env
-    depends_on:
-      - postgres
     command: python raw.py
     restart: "no"
 
@@ -23,8 +23,6 @@ services:
     build: ./nba_dbt
     env_file:
       - .env
-    depends_on:
-      - postgres
     volumes:
       - ./nba_dbt/target:/app/target
       - ./nba_dbt/logs:/app/logs
@@ -33,3 +31,12 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    driver: bridge
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+        - subnet: fd00:dead:beef::/48
